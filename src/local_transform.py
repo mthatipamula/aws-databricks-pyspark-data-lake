@@ -1,6 +1,9 @@
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
+from schema import TRANSACTION_SCHEMA
+from analytics import calculate_daily_merchant_metrics
+
 
 def main():
     spark = (
@@ -16,7 +19,7 @@ def main():
     df = (
         spark.read
         .option("header", True)
-        .option("inferSchema", True)
+        .schema(TRANSACTION_SCHEMA)
         .csv(input_path)
     )
 
@@ -52,23 +55,7 @@ def main():
 
     print("Curated data written to data/curated/transactions")
 
-    # Daily merchant-level analytics
-    daily_metrics = (
-        clean_df
-        .groupBy(
-            F.to_date("transaction_timestamp").alias("transaction_date"),
-            "merchant_id"
-        )
-        .agg(
-            F.count("*").alias("transaction_count"),
-            F.sum("amount").alias("total_amount"),
-            F.avg("amount").alias("average_amount")
-        )
-        .orderBy("transaction_date", "merchant_id")
-    )
-
-    print("=== DAILY MERCHANT METRICS ===")
-    daily_metrics.show()
+    daily_metrics = calculate_daily_merchant_metrics(clean_df)
 
     spark.stop()
 
