@@ -52,7 +52,7 @@ def main():
 
         # Write curated data as Parquet
     clean_df.write.mode("overwrite").parquet(
-        "data/curated/transactions"
+        "s3a://epsilon-demo-data-lake/curated/transactions"
     )
 
     print("Curated data written to data/curated/transactions")
@@ -64,7 +64,7 @@ def main():
 
     # Write analytics data as Parquet
     daily_metrics.write.mode("overwrite").parquet(
-        "data/analytics/daily_merchant_metrics"
+        "s3a://epsilon-demo-data-lake/analytics/daily_merchant_metrics"
     )
 
     print("Analytics data written to data/analytics/daily_merchant_metrics")
