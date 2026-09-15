@@ -10,6 +10,8 @@ def main():
         SparkSession.builder
         .appName("CustomerTransactionDataLake")
         .master("local[*]")
+        .config("spark.driver.bindAddress", "127.0.0.1")
+        .config("spark.driver.host", "127.0.0.1")
         .getOrCreate()
     )
 
@@ -56,6 +58,16 @@ def main():
     print("Curated data written to data/curated/transactions")
 
     daily_metrics = calculate_daily_merchant_metrics(clean_df)
+
+    print("\nDaily Merchant Metrics:")
+    daily_metrics.show()
+
+    # Write analytics data as Parquet
+    daily_metrics.write.mode("overwrite").parquet(
+        "data/analytics/daily_merchant_metrics"
+    )
+
+    print("Analytics data written to data/analytics/daily_merchant_metrics")
 
     spark.stop()
 
